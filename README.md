@@ -32,7 +32,7 @@
 
 
 ### 제출방법
-- 이 Repository 를 Clone 해주세요.
+- 이 Repository 를 fork 해주세요.
 - feature/{name} 으로 브랜치를 생성해주세요. 예: feature/suntae-kim
 - 과제를 진행해주세요.
 - 소스코드를 Push 하고 PR을 올려주세요.
