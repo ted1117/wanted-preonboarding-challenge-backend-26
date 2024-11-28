@@ -1,4 +1,3 @@
-from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import action
@@ -29,22 +28,18 @@ class ProductViewSet(ModelViewSet):
             return ProductRegisterSerializer
         return ProductSchema
 
-    def retrieve(self, request, *args, **kwargs):
-        product = self.get_object()
-
-        transaction = Transaction.objects.get(product=product)
-        serializer = TransactionSerializer(instance=transaction)
-        return Response(serializer.data)
-
-    def create(self, request, *args, **kwargs):
-        return super().create(request)
-
     def perform_create(self, serializer):
         serializer.save(seller=self.request.user)
 
     @action(methods=["POST"], detail=True)
     def purchase(self, request, pk):
         product = Product.objects.get(product_id=pk)
+
+        if product.seller == request.user:
+            return Response(
+                {"error": "Seller can't buy his own product."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if product.status != "Available":
             return Response(
@@ -58,11 +53,13 @@ class ProductViewSet(ModelViewSet):
         return Response(TransactionSerializer(instance=transaction).data)
 
     @action(methods=["POST"], detail=True)
-    def approve_sale(self, request):
+    def approve_sale(self, request, pk):
         product = self.get_object()
 
         if product.seller != request.user:
-            Response({"error": "Not Authorized"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Not Authorized"}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
         transaction = product.transactions.filter(status="Pending").first()
 
@@ -73,6 +70,9 @@ class ProductViewSet(ModelViewSet):
 
         transaction.status = "Approved"
         transaction.save()
+
+        product.status = "Sold out"
+        product.save()
 
         return Response(TransactionSerializer(instance=transaction).data)
 

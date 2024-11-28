@@ -35,7 +35,6 @@ class ProductSchema(serializers.ModelSerializer):
 
 class TransactionSerializer(serializers.ModelSerializer):
     buyer = serializers.StringRelatedField(read_only=True)
-    depth = 1
 
     class Meta:
         model = Transaction
