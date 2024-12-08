@@ -217,3 +217,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 }
+
+# PortOne
+IMP_UID = env("PORTONE_API_KEY")
+IMP_SECRET = env("PORTONE_SECRET_KEY")
